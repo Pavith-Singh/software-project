@@ -4,8 +4,9 @@ import Signin from "./signin"
 const App = () => {
   return (
     <Router>
-      <Routes></Routes>
+      <Routes>
         <Route path="/signin" element={<Signin />} />
+      </Routes>
     </Router>
   );
 };
