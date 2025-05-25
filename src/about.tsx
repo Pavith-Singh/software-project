@@ -1,12 +1,12 @@
 import Nav from './components/Nav/Nav'
 
-const Signin = () => {
+const About = () => {
   return (
     <div>
     <Nav />
-      <h1>Sign In</h1>
+      <h1>About</h1>
     </div>
   )
 }
 
-export default Signin
+export default About
