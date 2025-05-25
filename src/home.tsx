@@ -1,6 +1,6 @@
 import Nav from './components/Nav/Nav'
 
-const Home = () => {
+const Home: React.FC = () => {
   return (
     <div>
     <Nav />
