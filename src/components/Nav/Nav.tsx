@@ -184,7 +184,7 @@ const Nav: React.FC<{}> = () => {
       s.toLowerCase().includes(dropdown.toLowerCase()) && dropdown.length > 0
     );
   return (
-    <div className='relative flex items-center w-full h-[60px] animate-gradient bg-gradient-to-r from-red-600 via-red-900 to-black opacity-80 text-2xl text-white'>
+    <div className='fixed top-0 left-0 z-50 flex items-center w-full h-[60px] animate-gradient bg-gradient-to-r from-red-600 via-red-900 to-black bg-opacity-80 backdrop-blur-md text-2xl text-white'>
         <a href="/" className='pl-6 font-bold text-2xl flex items-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.25)] tracking-tight whitespace-nowrap'>🌎 Student World</a>
         <div className='flex items-center justify-start w-full'>
             <div className='flex relative w-1/3 ml-70'>
