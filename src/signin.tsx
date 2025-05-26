@@ -3,7 +3,8 @@ import Nav from './components/Nav/Nav'
 const Signin = () => {
   return (
     <div>
-    <Nav />
+      <Nav />
+      <div style={{ height: '60px' }} />
       <h1>Sign In</h1>
     </div>
   )
