@@ -80,9 +80,9 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ scrollProgress }) => {
         
 
 
-        scene.background = new THREE.Color(0x0a0e57)
-        // const spaceTexture = textureLoader.load('/space.jpg');
-        // scene.background = spaceTexture;
+        const textureLoader = new THREE.TextureLoader();
+        const spaceTexture = textureLoader.load('/red gradient.png');
+        scene.background = spaceTexture;
 
 
         // function Star() {
