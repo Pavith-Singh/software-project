@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { useRef, useEffect } from 'react';
 import { OrbitControls } from 'three/examples/jsm/Addons.js';
 import { GLTFLoader } from 'three/examples/jsm/Addons.js';
+import Background from 'three/src/renderers/common/Background.js';
 
 interface ThreeSceneProps {
     scrollProgress: number;
@@ -29,7 +30,7 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ scrollProgress }) => {
         camera.position.setY(10);
         camera.position.setX(10);
 
-        const geometry = new THREE.SphereGeometry(4, 32, 32);
+        const geometry = new THREE.SphereGeometry(8, 32, 32);
 
         const vertexShader = `
             varying vec2 vUv;
@@ -68,7 +69,7 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ scrollProgress }) => {
         });
         const sphere = new THREE.Mesh(geometry, material);
         sphere.position.y = 6;
-        sphere.position.z = 60; 
+        sphere.position.z = 0; 
         scene.add(sphere);
 
         const pointLight = new THREE.PointLight(0xffffff);
@@ -76,49 +77,51 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ scrollProgress }) => {
         const ambientLight = new THREE.AmbientLight(0xffffff);
         scene.add(pointLight, ambientLight);
 
-
-        const textureLoader = new THREE.TextureLoader();
-        const spaceTexture = textureLoader.load('/space.jpg');
-        scene.background = spaceTexture;
+        
 
 
-        function Star() {
-            const starGeometry = new THREE.SphereGeometry(0.15, 8, 8);
-            const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-            const star = new THREE.Mesh(starGeometry, starMaterial);
-            const [x, y, z] = Array(3).fill(0).map(() => THREE.MathUtils.randFloatSpread(200));
-            star.position.set(x, y, z);
-            scene.add(star);
-        }
-        Array.from({ length: 1000 }).forEach(Star);
+        scene.background = new THREE.Color(0x0a0e57)
+        // const spaceTexture = textureLoader.load('/space.jpg');
+        // scene.background = spaceTexture;
 
-        let blackholeMixer: THREE.AnimationMixer | undefined;
-        const clock = new THREE.Clock();
-        const gltfLoader = new GLTFLoader();
-        gltfLoader.load('/blackhole.glb', (gltf: any) => {
-            const blackhole = gltf.scene;
-            blackhole.position.set(0, 0, 0);
-            blackhole.scale.set(20, 20, 20);
-            scene.add(blackhole);
-            if (gltf.animations && gltf.animations.length > 0) {
-                blackholeMixer = new THREE.AnimationMixer(blackhole);
-                gltf.animations.forEach((clip: THREE.AnimationClip) => {
-                    blackholeMixer!.clipAction(clip).play();
-                });
-            }
-        });
 
-        scene.fog = new THREE.FogExp2(0x05010a, 0.008);
+        // function Star() {
+        //     const starGeometry = new THREE.SphereGeometry(0.15, 8, 8);
+        //     const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        //     const star = new THREE.Mesh(starGeometry, starMaterial);
+        //     const [x, y, z] = Array(3).fill(0).map(() => THREE.MathUtils.randFloatSpread(200));
+        //     star.position.set(x, y, z);
+        //     scene.add(star);
+        // }
+        // Array.from({ length: 1000 }).forEach(Star);
 
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableZoom = false;
-        controls.enablePan = false;
-        controls.enableRotate = false;
+        // let blackholeMixer: THREE.AnimationMixer | undefined;
+        // const clock = new THREE.Clock();
+        // const gltfLoader = new GLTFLoader();
+        // gltfLoader.load('/blackhole.glb', (gltf: any) => {
+        //     const blackhole = gltf.scene;
+        //     blackhole.position.set(0, 0, 0);
+        //     blackhole.scale.set(20, 20, 20);
+        //     scene.add(blackhole);
+        //     if (gltf.animations && gltf.animations.length > 0) {
+        //         blackholeMixer = new THREE.AnimationMixer(blackhole);
+        //         gltf.animations.forEach((clip: THREE.AnimationClip) => {
+        //             blackholeMixer!.clipAction(clip).play();
+        //         });
+        //     }
+        // });
+
+        // scene.fog = new THREE.FogExp2(0x05010a, 0.008);
+
+        // const controls = new OrbitControls(camera, renderer.domElement);
+        // controls.enableZoom = false;
+        // controls.enablePan = false;
+        // controls.enableRotate = false;
 
         function animate(time: number = 0) {
             requestAnimationFrame(animate);
-            const delta = clock.getDelta();
-            if (blackholeMixer) blackholeMixer.update(delta);
+            // const delta = clock.getDelta();
+            // if (blackholeMixer) blackholeMixer.update(delta);
             (sphere.material as THREE.ShaderMaterial).uniforms.u_time.value = time * 0.001;
             
             const baseDistance = 50;
