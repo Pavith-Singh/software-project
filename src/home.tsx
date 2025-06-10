@@ -88,7 +88,7 @@ const Home: React.FC = () => {
                     {index === carouselItems.length - 1 && (
                       <a 
                         href="/signin" 
-                        className="inline-block bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-opacity-90 transition-all duration-300 transform hover:scale-105"
+                        className="inline-block bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-opacity-90 hover:bg-black hover:text-white transition-all duration-300 transform hover:scale-105"
                       >
                         Sign In
                       </a>

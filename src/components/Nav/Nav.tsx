@@ -183,6 +183,7 @@ const Nav: React.FC<{}> = () => {
     const filtered = suggestions.filter((s) =>
       s.toLowerCase().includes(dropdown.toLowerCase()) && dropdown.length > 0
     );
+    const [popup, setPopup] = useState(false);
   return (
     <div className='fixed top-0 left-0 z-50 flex items-center w-full h-[60px] animate-gradient bg-gradient-to-r from-red-600 via-red-900 to-black bg-opacity-80 backdrop-blur-md text-2xl text-white'>
         <a href="/" className='pl-6 font-bold text-2xl flex items-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.25)] tracking-tight whitespace-nowrap'>🌎 Student World</a>
@@ -209,6 +210,7 @@ const Nav: React.FC<{}> = () => {
                         onMouseDown={() => {
                         setDropdown(item);
                         setSearchTerm(false);
+                        setPopup(true);
                         }}
                     >
                         {item}
@@ -218,12 +220,22 @@ const Nav: React.FC<{}> = () => {
                 )}
             </div>
         <a href="/" className='pl-35 text-white hover:text-red-400 transition-colors duration-300 text-base'>Home</a>
-        <a href="https://www.apple.com" className='pl-8 text-white hover:text-red-400 transition-colors duration-300 text-base'>Learn</a>
-        <a href="/about" className='pl-8 text-white hover:text-red-400 transition-colors duration-300 text-base'>About</a>
+        <button className='cursor-pointer pl-8 text-white hover:text-red-400 transition-colors duration-300 text-base' onClick={() => setPopup(true)}>Learn</button>
+        <a href="/about" className='pl-8 text-white hover:text-red-400 transition-colors duration-300 text-base'>Support</a>
         <a href="/signin" className='ml-8 mr-6 px-4 py-1 border border-red-400 rounded-full text-white hover:text-red-400 hover:border-white transition-all duration-300 text-base shadow-sm'>Sign In</a>
 
         </div>
         <div className="absolute left-0 bottom-0 w-full h-[2px] animate-gradient bg-gradient-to-r from-black via-blue-700 to-blue-400"></div>
+        {popup && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-red-400 p-8 rounded shadow-lg text-black relative mt-120">
+                <button className='cursor-pointer absolute top-2 right-2 text-red-500 hover:text-red-700' onClick={() => setPopup(false)}>✖️</button>
+                <h2 className="text-2xl font-bold mb-4">Sign In Required</h2>
+                <p className="mb-4">To access our state of the art learning resources please sign in or create an account with us 🙂 </p>
+                <a href="/signin" className="inline-block bg-red-600 text-black px-4 py-2 rounded-full hover:bg-black hover:text-red-600 transition-all duration-300 ease-in-out hover:scale-105">Sign In</a>
+              </div>
+            </div>
+          )}
     </div>
   )
 }
