@@ -221,7 +221,7 @@ const Nav: React.FC<{}> = () => {
             </div>
         <a href="/" className='pl-35 text-white hover:text-red-400 transition-colors duration-300 text-base'>Home</a>
         <button className='cursor-pointer pl-8 text-white hover:text-red-400 transition-colors duration-300 text-base' onClick={() => setPopup(true)}>Learn</button>
-        <a href="/about" className='pl-8 text-white hover:text-red-400 transition-colors duration-300 text-base'>Support</a>
+        <a href="/contact" className='pl-8 text-white hover:text-red-400 transition-colors duration-300 text-base'>Support</a>
         <a href="/signin" className='ml-8 mr-6 px-4 py-1 border border-red-400 rounded-full text-white hover:text-red-400 hover:border-white transition-all duration-300 text-base shadow-sm'>Sign In</a>
 
         </div>
