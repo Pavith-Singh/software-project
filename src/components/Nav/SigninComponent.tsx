@@ -8,13 +8,22 @@ const SigninComponent = () => {
   const [Signup, setSignup] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [ShowPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+  };
 
   return (
-    <div className="w-full h-screen flex items-center justify-center">
+    <div className="w-full h-screen flex items-center justify-center relative">
       <motion.div
-        layout 
+        layout
         transition={{ layout: { duration: 0.5, type: 'spring' } }}
-        className="w-[90%] max-w-sm md:max-w-md lg:max-w-md p-5 bg-black/25 flex-col flex items-center gap-4 rounded-xl shadow-blue-600 shadow-lg"
+        className="w-[90%] max-w-sm md:max-w-md lg:max-w-md p-5 bg-black/25 flex-col flex items-center gap-4 rounded-xl shadow-blue-600 shadow-lg relative"
       >
         <img src="/vite.png" alt="logo" className="w-12 md:w-14" />
         <h1 className="text-lg md:text-xl font-semibold text-white">
@@ -29,6 +38,7 @@ const SigninComponent = () => {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.4 }}
             className="w-full flex flex-col gap-3"
+            onSubmit={handleSubmit}
           >
             {Signup && (
               <input
@@ -60,6 +70,7 @@ const SigninComponent = () => {
             <button
               type="submit"
               className="cursor-pointer bg-red-500 hover:bg-red-600 transition-all text-white font-semibold py-2 rounded"
+              disabled={loading}
             >
               {Signup ? 'Sign Up' : 'Sign In'}
             </button>
@@ -118,6 +129,14 @@ const SigninComponent = () => {
             </div>
           </motion.div>
         </div>
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-xl z-20">
+            <div className="flex flex-col items-center">
+              <div className="w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+              <span className="text-white font-semibold">Loading...</span>
+            </div>
+          </div>
+        )}
       </motion.div>
     </div>
   );
