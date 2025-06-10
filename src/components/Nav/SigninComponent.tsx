@@ -14,7 +14,7 @@ const SigninComponent = () => {
       <motion.div
         layout 
         transition={{ layout: { duration: 0.5, type: 'spring' } }}
-        className="w-[90%] max-w-sm md:max-w-md lg:max-w-md p-5 bg-black/25 flex-col flex items-center gap-4 rounded-xl shadow-slate-500 shadow-lg"
+        className="w-[90%] max-w-sm md:max-w-md lg:max-w-md p-5 bg-black/25 flex-col flex items-center gap-4 rounded-xl shadow-blue-600 shadow-lg"
       >
         <img src="/vite.png" alt="logo" className="w-12 md:w-14" />
         <h1 className="text-lg md:text-xl font-semibold text-white">
