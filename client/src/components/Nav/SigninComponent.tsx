@@ -3,10 +3,10 @@ import { AnimatePresence, motion } from 'framer-motion';
 import googleLogo from '../../assets/google.png';
 import visible from '../../assets/eye.png';
 import invisible from '../../assets/eye_closed.png';
-// @ts-ignore
-import {doSignInWithGoogle, doSignInWithEmailAndPassword, doCreateUserWithEmailAndPassword} from '../../firebase/auth';
-// @ts-ignore
-import {useAuth} from '../../contexts/authContext';
+import { doSignInWithGoogle, doSignInWithEmailAndPassword, doCreateUserWithEmailAndPassword } from '../../firebase/auth';
+
+// import { useAuth } from '../../contexts/authContext';
+import { useNavigate } from 'react-router-dom';
 
 const SigninComponent = () => {
   const [Signup, setSignup] = useState(false);
@@ -15,13 +15,14 @@ const SigninComponent = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
 
-  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  
+  const navigate = useNavigate();
+  // const { currentUser } = useAuth();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -29,13 +30,13 @@ const SigninComponent = () => {
     setSuccess(null);
     try {
       if (Signup) {
-        
         await doCreateUserWithEmailAndPassword(email, password);
         setSuccess('Successfully signed up! Welcome to Student World!');
+        navigate('/home');
       } else {
-        
         await doSignInWithEmailAndPassword(email, password);
         setSuccess('Successfully signed in! Welcome back to Student World!');
+        navigate('/home');
       }
     } catch (err: any) {
       setError(err.message || 'Authentication failed 😣');
@@ -44,7 +45,6 @@ const SigninComponent = () => {
     setLoading(false);
   };
 
-  
   const handleGoogle = async () => {
     setLoading(true);
     setError(null);
@@ -52,6 +52,7 @@ const SigninComponent = () => {
     try {
       await doSignInWithGoogle();
       setSuccess('Successfully signed in with Google!');
+      navigate('/home');
     } catch (err: any) {
       setError(err.message || 'Google authentication failed');
       console.error('Google authentication error:', err);

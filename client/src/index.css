@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+
+
 @keyframes gradient-move {
   0%, 100% {
     background-position: 0% 50%;
@@ -18,4 +20,19 @@ canvas {
   position: fixed;
   top: 0;
   left: 0;
+}
+
+
+
+:root {
+  --color-primary: #202225;
+  --color-secondary: #5865f2;
+  --color-gray-900: #202225;
+  --color-gray-800: #2f3136;
+  --color-gray-700: #36393f;
+  --color-gray-600: #4f545c;
+  --color-gray-400: #d4d7dc;
+  --color-gray-300: #e3e5e8;
+  --color-gray-200: #ebedef;
+  --color-gray-100: #f2f3f5;
 }
