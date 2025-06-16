@@ -1,8 +1,14 @@
 import React, { useState } from 'react'
+<<<<<<< HEAD
 import emailjs from 'emailjs-com'
 
 const Contact_Form = () => {
   const [form, setForm] = useState({ name: '', email: '', contact: '' });
+=======
+
+const Contact_Form = () => {
+  const [form, setForm] = useState({ name: '', email: '', feedback: '' });
+>>>>>>> b82e08b9d4fe151c41b9d47a9e9d706b8bc444dc
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -13,6 +19,7 @@ const Contact_Form = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+<<<<<<< HEAD
     setStatus('');
     emailjs.send('service_vjdi6lw', 'template_5jhlxu3', {name: form.name, email: form.email, message: form.contact}, 'tNhlsdTVrPKuvPYDW')
       .then(() => {
@@ -26,11 +33,19 @@ const Contact_Form = () => {
         setLoading(false);
       });
 
+=======
+    setTimeout(() => {
+      setStatus('Thank you for your feedback!');
+      setForm({ name: '', email: '', feedback: '' });
+      setLoading(false);
+    }, 1200);
+>>>>>>> b82e08b9d4fe151c41b9d47a9e9d706b8bc444dc
   };
 
   return (
     <div className="w-full flex items-center justify-center py-12 relative">
       <div className="w-full max-w-md md:max-w-lg lg:max-w-xl p-8 bg-black/30 flex-col flex items-center gap-6 rounded-2xl shadow-blue-600 shadow-2xl backdrop-blur-md relative">
+<<<<<<< HEAD
         <h1 className="text-2xl md:text-3xl font-bold text-white mb-2 text-center w-full">Contact</h1>
         <div className="flex gap-6 mb-4 justify-center w-full ml-1">
           <div className="flex flex-col items-center" style={{ transform: 'translateX(-20px)' }}>
@@ -51,6 +66,9 @@ const Contact_Form = () => {
             <span className="text-white text-sm font-semibold">13 14 23</span>
           </div>
         </div>
+=======
+        <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Feedback</h1>
+>>>>>>> b82e08b9d4fe151c41b9d47a9e9d706b8bc444dc
         <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
           <input
             name="name"
@@ -71,9 +89,15 @@ const Contact_Form = () => {
             className="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder:text-gray-400 focus:outline-none text-base md:text-lg"
           />
           <textarea
+<<<<<<< HEAD
             name="contact"
             placeholder="Your Message"
             value={form.contact}
+=======
+            name="feedback"
+            placeholder="Your Feedback"
+            value={form.feedback}
+>>>>>>> b82e08b9d4fe151c41b9d47a9e9d706b8bc444dc
             onChange={handleChange}
             required
             rows={5}
@@ -84,12 +108,19 @@ const Contact_Form = () => {
             disabled={loading}
             className="cursor-pointer bg-red-500 hover:bg-red-600 transition-all text-white font-bold py-3 rounded-lg mt-2 text-lg md:text-xl shadow-md"
           >
+<<<<<<< HEAD
             Submit Message
           </button>
         </form>
         {status && (
           <div className={`text-center mt-2 text-base md:text-lg font-semibold ${status.includes('Failed') ? 'text-red-400' : 'text-green-400'}`}>{status}</div>
         )}
+=======
+            Submit Feedback
+          </button>
+        </form>
+        {status && <div className="text-green-400 text-center mt-2 text-base md:text-lg font-semibold">{status}</div>}
+>>>>>>> b82e08b9d4fe151c41b9d47a9e9d706b8bc444dc
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-2xl z-20">
             <div className="flex flex-col items-center">
