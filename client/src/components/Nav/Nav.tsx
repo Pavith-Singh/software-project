@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+import Fuse from 'fuse.js';
+
 const suggestions = [
     //field done with chatgpt
   "English Advanced – Year 11",
@@ -177,12 +179,10 @@ const suggestions = [
   "IB: Theory of Knowledge",
   "IB: Extended Essay",
 ]
+
 const Nav: React.FC<{}> = () => {
     const [dropdown, setDropdown] = useState("");
     const [searchTerm, setSearchTerm] = useState(false);
-    const filtered = suggestions.filter((s) =>
-      s.toLowerCase().includes(dropdown.toLowerCase()) && dropdown.length > 0
-    );
     const [popup, setPopup] = useState(false);
 
 
@@ -191,6 +191,8 @@ const Nav: React.FC<{}> = () => {
     const [charIdx, setCharIdx] = useState(0);
     const [typing, setTyping] = useState(true);
 
+    const fuse = new Fuse(suggestions, { threshold: 0.4 });
+    const filtered = dropdown.length > 0 ? fuse.search(dropdown).map(result => result.item) : [];
 
     const getRandomIdx = (excludeIdx: number) => {
       let idx = Math.floor(Math.random() * suggestions.length);

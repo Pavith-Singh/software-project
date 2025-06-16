@@ -32,7 +32,7 @@ const Contact_Form = () => {
   };
 
   return (
-    <div className="w-full flex items-center justify-center py-12 relative">
+    <div className="w-full flex items-center justify-center py-24 relative">
       <div className="w-full max-w-md md:max-w-lg lg:max-w-xl p-8 bg-black/30 flex-col flex items-center gap-6 rounded-2xl shadow-blue-600 shadow-2xl backdrop-blur-md relative">
         <h1 className="text-2xl md:text-3xl font-bold text-white mb-2 text-center w-full">Contact</h1>
         
@@ -55,8 +55,8 @@ const Contact_Form = () => {
             <span className="text-white text-sm font-semibold">pavithsingh@outlook.com</span>
           </div>
 
-          <div className="flex flex-col items-center" style={{ transform: 'translateX(-20px)' }}>
-            <div className="bg-white/20 rounded-full w-16 h-16 flex items-center justify-center shadow-md mb-2">
+          <div className="flex flex-col items-center cursor-pointer" style={{ transform: 'translateX(-20px)' }}>
+            <a href="tel:131423" className="bg-white/20 rounded-full w-16 h-16 flex items-center justify-center shadow-md mb-2" tabIndex={-1}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                    fill="currentColor" className="w-8 h-8 text-white">
                 <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 
@@ -65,7 +65,7 @@ const Contact_Form = () => {
                          3 5a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 
                          2.46.57 3.58a1 1 0 01-.24 1.01l-2.2 2.2z" />
               </svg>
-            </div>
+            </a>
             <span className="text-white text-sm font-semibold">13 14 23</span>
           </div>
         </div>
