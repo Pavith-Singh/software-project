@@ -184,6 +184,56 @@ const Nav: React.FC<{}> = () => {
       s.toLowerCase().includes(dropdown.toLowerCase()) && dropdown.length > 0
     );
     const [popup, setPopup] = useState(false);
+
+
+    const [placeholder, setPlaceholder] = useState("");
+    const [suggestionIdx, setSuggestionIdx] = useState(0);
+    const [charIdx, setCharIdx] = useState(0);
+    const [typing, setTyping] = useState(true);
+
+
+    const getRandomIdx = (excludeIdx: number) => {
+      let idx = Math.floor(Math.random() * suggestions.length);
+      while (idx === excludeIdx && suggestions.length > 1) {
+        idx = Math.floor(Math.random() * suggestions.length);
+      }
+      return idx;
+    };
+
+    React.useEffect(() => {
+      if (dropdown.length > 0) return; 
+      let timeout: ReturnType<typeof setTimeout>;
+      const currentSuggestion = suggestions[suggestionIdx];
+      if (typing) {
+        if (charIdx < currentSuggestion.length) {
+          timeout = setTimeout(() => {
+            setPlaceholder(currentSuggestion.slice(0, charIdx + 1));
+            setCharIdx(charIdx + 1);
+          }, 60);
+        } else {
+          timeout = setTimeout(() => setTyping(false), 1200);
+        }
+      } else {
+        if (charIdx > 0) {
+          timeout = setTimeout(() => {
+            setPlaceholder(currentSuggestion.slice(0, charIdx - 1));
+            setCharIdx(charIdx - 1);
+          }, 30);
+        } else {
+          setTyping(true);
+          setSuggestionIdx(getRandomIdx(suggestionIdx));
+        }
+      }
+      return () => clearTimeout(timeout);
+    }, [charIdx, typing, suggestionIdx, dropdown]);
+
+
+    React.useEffect(() => {
+      if (dropdown.length > 0) {
+        setPlaceholder("");
+      }
+    }, [dropdown]);
+
   return (
     <div className='fixed top-0 left-0 z-50 flex items-center w-full h-[60px] animate-gradient bg-gradient-to-r from-red-600 via-red-900 to-black bg-opacity-80 backdrop-blur-md text-2xl text-white'>
         <a href="/" className='pl-6 font-bold text-2xl flex items-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.25)] tracking-tight whitespace-nowrap'>🌎 Student World</a>
@@ -191,7 +241,7 @@ const Nav: React.FC<{}> = () => {
             <div className='flex relative w-1/3 ml-70'>
                 <input
                 type="text"
-                placeholder="Search Senior Subjects"
+                placeholder={dropdown.length > 0 ? "" : placeholder || " "}
                 className="w-full h-8 px-4 text-white rounded-full outline outline-white focus:outline-none focus:ring-2 focus:ring-red-400"
                 value={dropdown}
                 onChange={e => {

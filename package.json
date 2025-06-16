@@ -15,18 +15,11 @@
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
-<<<<<<< HEAD
     "emailjs-com": "^3.2.0",
     "framer-motion": "^12.18.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.2",
-=======
-    "framer-motion": "^12.15.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-router-dom": "^7.5.0",
->>>>>>> b82e08b9d4fe151c41b9d47a9e9d706b8bc444dc
     "tailwindcss": "^4.1.7",
     "three": "^0.176.0"
   },
