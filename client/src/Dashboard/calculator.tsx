@@ -1,14 +1,15 @@
-import Sidebar from './components/Nav/Sidebar';
+import React from 'react';
+import Sidebar from '../components/Nav/Sidebar';
 
-function Dashboard() {
+function Calculator() {
   return (
     <div className="flex w-full h-screen">
       <Sidebar />
       <div className="ml-16 flex-1 bg-gray-100 flex items-center justify-center text-xl">
-        Welcome to your Dashboard!
+      <h1 className="text-2xl">Calculator!</h1>
       </div>
     </div>
   );
 }
 
-export default Dashboard;
+export default Calculator;
