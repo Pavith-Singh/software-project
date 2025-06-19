@@ -1,28 +1,30 @@
-import React from 'react';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import React, { useState, useEffect } from 'react';
+import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FiMessageCircle } from "react-icons/fi";
-import { SlCalculator } from "react-icons/sl";
-import { GoGraph } from "react-icons/go";
-import { FaEarthAmericas } from "react-icons/fa6";
-import { SiGoogleclassroom } from "react-icons/si";
-import { GiArtificialIntelligence } from "react-icons/gi";
-import { FaUserFriends } from "react-icons/fa";
-import { MdAccountCircle } from "react-icons/md";
-import { RxActivityLog } from "react-icons/rx";
-import { FaPen } from "react-icons/fa";
+import { FiMessageCircle } from 'react-icons/fi';
+import { SlCalculator } from 'react-icons/sl';
+import { GoGraph } from 'react-icons/go';
+import { FaEarthAmericas, FaLaptopCode } from 'react-icons/fa6';
+import { SiGoogleclassroom } from 'react-icons/si';
+import { GiArtificialIntelligence } from 'react-icons/gi';
+import { FaUserFriends } from 'react-icons/fa';
+import { MdAccountCircle } from 'react-icons/md';
+import { RxActivityLog } from 'react-icons/rx';
+import { FaPen } from 'react-icons/fa';
 
 const Sidebar: React.FC = () => {
-    const [initials, setInitials] = React.useState<string | null>(null);
-    const [username, setUsername] = React.useState<string>('Account');
-    const [basePath] = React.useState<string>('/home');
+    const [initials, setInitials] = useState<string | null>(null);
+    const [username, setUsername] = useState<string>('Account');
+    const [photoURL, setPhotoURL] = useState<string | null>(null);
+    const [basePath] = useState<string>('/home');
     const navigate = useNavigate();
     const location = useLocation();
 
-    React.useEffect(() => {
+    useEffect(() => {
         const auth = getAuth();
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
             if (user) {
+                setPhotoURL(user.photoURL || null);
                 if (user.displayName) {
                     setUsername(user.displayName);
                     const parts = user.displayName.trim().split(/\s+/).filter(p => p.length > 0);
@@ -47,6 +49,7 @@ const Sidebar: React.FC = () => {
             } else {
                 setUsername('Account');
                 setInitials(null);
+                setPhotoURL(null);
             }
         });
         return () => unsubscribe();
@@ -66,7 +69,7 @@ const Sidebar: React.FC = () => {
     };
 
     return (
-        <div className='fixed z-20 top-0 left-0 h-screen w-16 flex flex-col bg-gray-900 text-white shadow-lg'>
+        <div className="fixed z-20 top-0 left-0 h-screen w-16 flex flex-col bg-gray-900 text-white shadow-lg">
             <SidebarIcon
                 onClick={() => go('')}
                 icon={<FaEarthAmericas size={28} />}
@@ -121,11 +124,23 @@ const Sidebar: React.FC = () => {
                 text="NSWEduChat 2.0"
                 active={isActive('ai')}
             />
-            <div className='flex-1'></div>
+            <SidebarIcon
+                onClick={() => go('ide')}
+                icon={<FaLaptopCode size={28} />}
+                text="IDE"
+                active={isActive('ide')}
+            />
+            <div className="flex-1"></div>
             <SidebarIcon
                 onClick={() => go('account')}
                 icon={
-                    initials ? (
+                    photoURL ? (
+                        <img
+                            src={photoURL}
+                            alt="avatar"
+                            className="w-10 h-10 rounded-full object-cover"
+                        />
+                    ) : initials ? (
                         <div className="flex items-center justify-center w-full h-full text-2xl">
                             {initials}
                         </div>
@@ -147,7 +162,7 @@ type SidebarIconProps = {
     active?: boolean;
 };
 
-const SidebarIcon = ({ onClick, icon, text = 'tooltip', active = false }: SidebarIconProps) => (
+const SidebarIcon: React.FC<SidebarIconProps> = ({ onClick, icon, text = 'tooltip', active = false }) => (
     <div
         onClick={onClick}
         className={`relative flex items-center justify-center h-12 w-12 mt-2 mb-2 mx-auto shadow-lg cursor-pointer rounded-3xl hover:rounded-xl transition-all group ${
@@ -157,7 +172,7 @@ const SidebarIcon = ({ onClick, icon, text = 'tooltip', active = false }: Sideba
         }`}
     >
         {icon}
-        <span className='absolute w-auto p-2 m-2 min-w-max left-14 rounded-md shadow-md text-white bg-gray-900 text-xs font-bold transition-all duration-100 scale-0 origin-left group-hover:scale-100'>
+        <span className="absolute w-auto p-2 m-2 min-w-max left-14 rounded-md shadow-md text-white bg-gray-900 text-xs font-bold transition-all duration-100 scale-0 origin-left group-hover:scale-100">
             {text}
         </span>
     </div>

@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Signin from "./signin";
 import Home from "./home";
 import Support from "./contact";
@@ -12,6 +12,7 @@ import Calculator from "./Dashboard/calculator";
 import GraphingCalculator from "./Dashboard/graphing_calculator";
 import Activities from "./Dashboard/activities";
 import AIChat from "./Dashboard/ai_chat";
+import IDE from "./Dashboard/ide";
 
 import ProtectedRoute from "./ProtectedRoute"
 import { getAuth } from "firebase/auth";
@@ -100,6 +101,15 @@ const App = () => {
           </ProtectedRoute>
         }
         />
+        <Route
+        path = "/home/ide"
+        element={
+          <ProtectedRoute>
+            <IDE />
+          </ProtectedRoute>
+        }
+        />
+        <Route path ="*" element={<Navigate to='/' replace />} />
       </Routes>
     </Router>
   );

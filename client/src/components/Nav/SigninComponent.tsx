@@ -4,8 +4,9 @@ import googleLogo from '../../assets/google.png';
 import visible from '../../assets/eye.png';
 import invisible from '../../assets/eye_closed.png';
 import { doSignInWithGoogle, doSignInWithEmailAndPassword, doCreateUserWithEmailAndPassword } from '../../firebase/auth';
+import { updateProfile } from 'firebase/auth';
 
-// import { useAuth } from '../../contexts/authContext';
+
 import { useNavigate } from 'react-router-dom';
 
 const SigninComponent = () => {
@@ -21,7 +22,6 @@ const SigninComponent = () => {
   const [error, setError] = useState<string | null>(null);
 
   const navigate = useNavigate();
-  // const { currentUser } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +30,11 @@ const SigninComponent = () => {
     setSuccess(null);
     try {
       if (Signup) {
-        await doCreateUserWithEmailAndPassword(email, password);
+        const userCredential = await doCreateUserWithEmailAndPassword(email, password);
+        if (userCredential) {
+          await updateProfile(userCredential.user, {displayName: fullName});
+          await userCredential.user.reload(); 
+        }
         setSuccess('Successfully signed up! Welcome to Student World!');
         navigate('/home');
       } else {
