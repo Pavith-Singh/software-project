@@ -15,17 +15,15 @@ import {
   User,
 } from 'firebase/auth';
 import { getStorage, ref, uploadString, getDownloadURL } from 'firebase/storage';
+import { app } from '../firebase/firebase';
 
-const storage = getStorage();
+const storage = getStorage(app);
 
 const Account: React.FC = () => {
   const auth = getAuth();
   const [user, setUser] = useState<User | null>(null);
-  const [activeSection, setActiveSection] = useState<''
-    | 'username'
-    | 'email'
-    | 'password'
-    | 'picture'>('');
+  const [isGoogleUser, setIsGoogleUser] = useState(false);
+  const [activeSection, setActiveSection] = useState<'' | 'username' | 'email' | 'password' | 'picture'>('');
   const [newDisplayName, setNewDisplayName] = useState('');
   const [currentPassUsername, setCurrentPassUsername] = useState('');
   const [newEmail, setNewEmail] = useState('');
@@ -51,6 +49,8 @@ const Account: React.FC = () => {
         setNewDisplayName(u.displayName || '');
         setNewEmail(u.email || '');
         setPhotoPreview(u.photoURL || null);
+        const googleOnly = u.providerData.length === 1 && u.providerData[0].providerId === 'google.com';
+        setIsGoogleUser(googleOnly);
       }
     });
     return () => unsub();
@@ -64,7 +64,9 @@ const Account: React.FC = () => {
 
   const handleUsername = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true); setError(null); setSuccess(null);
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
     try {
       await reauth(currentPassUsername);
       if (!user) throw new Error();
@@ -79,7 +81,9 @@ const Account: React.FC = () => {
 
   const handleEmail = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true); setError(null); setSuccess(null);
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
     try {
       await reauth(currentPassEmail);
       if (!user) throw new Error();
@@ -94,7 +98,9 @@ const Account: React.FC = () => {
 
   const handlePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true); setError(null); setSuccess(null);
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
     try {
       await reauth(currentPassPwd);
       if (!user) throw new Error();
@@ -127,23 +133,14 @@ const Account: React.FC = () => {
 
     try {
       await reauth(currentPassPic);
-
       const storageRef = ref(storage, `profile_pictures/${user.uid}`);
-
       const uploadTask = await uploadString(storageRef, photoPreview, 'data_url');
-
       const downloadURL = await getDownloadURL(uploadTask.ref);
-
       await updateProfile(user, { photoURL: downloadURL });
-
       setSuccess('Profile picture updated!');
       setActiveSection('');
     } catch (err: any) {
-      if (err.code === 'auth/wrong-password') {
-        setError('Incorrect password. Please try again.');
-      } else {
-        setError(err.message);
-      }
+      setError(err.code === 'auth/wrong-password' ? 'Incorrect password. Please try again.' : err.message);
     }
     setLoading(false);
   };
@@ -162,8 +159,7 @@ const Account: React.FC = () => {
     }
   };
 
-  const inputCls =
-    'w-full px-3 py-2 pr-10 rounded bg-white/10 text-white placeholder:text-gray-400 focus:outline-none';
+  const inputCls = 'w-full px-3 py-2 pr-10 rounded bg-white/10 text-white placeholder:text-gray-400 focus:outline-none';
 
   return (
     <div className="w-full h-screen flex items-center justify-center bg-gradient-to-b from-red-600 via-red-900 to-black">
@@ -176,12 +172,7 @@ const Account: React.FC = () => {
         <h1 className="text-2xl font-semibold text-white">
           {activeSection === ''
             ? 'Account Settings'
-            : {
-                username: 'Change Username',
-                email: 'Change Email',
-                password: 'Change Password',
-                picture: 'Change Profile Picture',
-              }[activeSection]}
+            : { username: 'Change Username', email: 'View Details', password: 'Change Password', picture: 'Change Profile Picture' }[activeSection]}
         </h1>
 
         <AnimatePresence mode="wait">
@@ -193,25 +184,34 @@ const Account: React.FC = () => {
               exit={{ opacity: 0, y: -20 }}
               className="flex flex-col gap-3 w-full"
             >
-              {['username', 'email', 'password', 'picture'].map((sec) => (
-                <button
-                  key={sec}
-                  onClick={() => {
-                    setActiveSection(sec as any);
-                    setError(null);
-                    setSuccess(null);
-                  }}
-                  className="cursor-pointer bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded"
-                >
-                  {sec === 'picture'
-                    ? 'Change Profile Picture'
-                    : `Change ${sec.charAt(0).toUpperCase() + sec.slice(1)}`}
-                </button>
-              ))}
-              <button
-                onClick={handleSignOut}
-                className="cursor-pointer bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2 rounded mt-4"
-              >
+              {['username', 'email', 'password', 'picture'].map((sec) => {
+                const disabled = isGoogleUser && (sec === 'username' || sec === 'password' || sec === 'picture');
+                return (
+                  <button
+                    key={sec}
+                    onClick={() => {
+                      if (!disabled) {
+                        setActiveSection(sec as any);
+                        setError(null);
+                        setSuccess(null);
+                      }
+                    }}
+                    disabled={disabled}
+                    className={`cursor-pointer font-semibold py-2 rounded ${
+                      disabled
+                        ? 'bg-gray-400 text-white cursor-not-allowed'
+                        : 'bg-red-500 hover:bg-red-600 text-white'
+                    }`}
+                  >
+                    {sec === 'email'
+                      ? 'View Details'
+                      : sec === 'picture'
+                      ? 'Change Profile Picture'
+                      : `Change ${sec.charAt(0).toUpperCase() + sec.slice(1)}`}
+                  </button>
+                );
+              })}
+              <button onClick={handleSignOut} className="cursor-pointer bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2 rounded mt-4">
                 Sign Out
               </button>
             </motion.div>
@@ -229,7 +229,7 @@ const Account: React.FC = () => {
               <input
                 type="text"
                 className={inputCls.replace('pr-10', '')}
-                placeholder={user?.displayName || 'New username'}
+                placeholder="New Username"
                 value={newDisplayName}
                 onChange={(e) => setNewDisplayName(e.target.value)}
                 required
@@ -247,74 +247,32 @@ const Account: React.FC = () => {
                   src={showPassUsername ? visible : invisible}
                   alt="toggle"
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 w-6 h-6 cursor-pointer"
-                  onClick={() => setShowPassUsername((v) => !v)}
+                  onClick={() => setShowPassUsername(v => !v)}
                 />
               </div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="cursor-pointer bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded"
-              >
+              <button type="submit" disabled={loading} className="cursor-pointer bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded">
                 Save Username
               </button>
-              <button
-                type="button"
-                onClick={() => setActiveSection('')}
-                className="cursor-pointer text-gray-400 underline"
-              >
+              <button type="button" onClick={() => setActiveSection('')} className="cursor-pointer text-gray-400 underline">
                 Cancel
               </button>
             </motion.form>
           )}
 
-          {activeSection === 'email' && (
-            <motion.form
-              key="email"
-              onSubmit={handleEmail}
-              initial={{ opacity: 0, y: 20 }}
+          {activeSection === 'email' && user && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="w-full flex flex-col gap-3"
+              exit={{ opacity: 0, y: -10 }}
+              className="space-y-4 text-white text-sm w-full flex flex-col items-center"
             >
-              <input
-                type="email"
-                className={inputCls.replace('pr-10', '')}
-                placeholder={user?.email || 'New email'}
-                value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
-                required
-              />
-              <div className="relative w-full">
-                <input
-                  type={showPassEmail ? 'text' : 'password'}
-                  className={inputCls}
-                  placeholder="Current password"
-                  value={currentPassEmail}
-                  onChange={(e) => setCurrentPassEmail(e.target.value)}
-                  required
-                />
-                <img
-                  src={showPassEmail ? visible : invisible}
-                  alt="toggle"
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-6 h-6 cursor-pointer"
-                  onClick={() => setShowPassEmail((v) => !v)}
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="cursor-pointer bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded"
-              >
-                Save Email
+              <img src={user.photoURL || 'https://via.placeholder.com/100'} alt="Profile" className="w-24 h-24 rounded-full" />
+              <div className="text-lg font-semibold">{user.displayName || 'No username set'}</div>
+              <div>Email: <span className="font-mono">{user.email}</span></div>
+              <button type="button" onClick={() => setActiveSection('')} className="cursor-pointer text-gray-400 underline">
+                Back
               </button>
-              <button
-                type="button"
-                onClick={() => setActiveSection('')}
-                className="cursor-pointer text-gray-400 underline"
-              >
-                Cancel
-              </button>
-            </motion.form>
+            </motion.div>
           )}
 
           {activeSection === 'password' && (
@@ -339,7 +297,7 @@ const Account: React.FC = () => {
                   src={showPassNew ? visible : invisible}
                   alt="toggle"
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 w-6 h-6 cursor-pointer"
-                  onClick={() => setShowPassNew((v) => !v)}
+                  onClick={() => setShowPassNew(v => !v)}
                 />
               </div>
               <div className="relative w-full">
@@ -355,21 +313,13 @@ const Account: React.FC = () => {
                   src={showPassCurrent ? visible : invisible}
                   alt="toggle"
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 w-6 h-6 cursor-pointer"
-                  onClick={() => setShowPassCurrent((v) => !v)}
+                  onClick={() => setShowPassCurrent(v => !v)}
                 />
               </div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="cursor-pointer bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded"
-              >
+              <button type="submit" disabled={loading} className="cursor-pointer bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded">
                 Save Password
               </button>
-              <button
-                type="button"
-                onClick={() => setActiveSection('')}
-                className="cursor-pointer text-gray-400 underline"
-              >
+              <button type="button" onClick={() => setActiveSection('')} className="cursor-pointer text-gray-400 underline">
                 Cancel
               </button>
             </motion.form>
@@ -384,13 +334,7 @@ const Account: React.FC = () => {
               exit={{ opacity: 0, y: -20 }}
               className="w-full flex flex-col gap-3"
             >
-              <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                className="hidden"
-                onChange={onPhotoChange}
-              />
+              <input type="file" accept="image/*" ref={fileInputRef} className="hidden" onChange={onPhotoChange} />
               <button
                 type="button"
                 className="cursor-pointer bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2 rounded"
@@ -398,13 +342,7 @@ const Account: React.FC = () => {
               >
                 Select Profile Picture
               </button>
-              {photoPreview && (
-                <img
-                  src={photoPreview}
-                  alt="Preview"
-                  className="w-24 h-24 rounded-full mx-auto"
-                />
-              )}
+              {photoPreview && <img src={photoPreview} alt="Preview" className="w-24 h-24 rounded-full mx-auto" />}
               <div className="relative w-full">
                 <input
                   type={showPassPic ? 'text' : 'password'}
@@ -418,33 +356,21 @@ const Account: React.FC = () => {
                   src={showPassPic ? visible : invisible}
                   alt="toggle"
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 w-6 h-6 cursor-pointer"
-                  onClick={() => setShowPassPic((v) => !v)}
+                  onClick={() => setShowPassPic(v => !v)}
                 />
               </div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="cursor-pointer bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded"
-              >
+              <button type="submit" disabled={loading} className="cursor-pointer bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded">
                 Save Picture
               </button>
-              <button
-                type="button"
-                onClick={() => setActiveSection('')}
-                className="cursor-pointer text-gray-400 underline"
-              >
+              <button type="button" onClick={() => setActiveSection('')} className="cursor-pointer text-gray-400 underline">
                 Cancel
               </button>
             </motion.form>
           )}
         </AnimatePresence>
 
-        {error && (
-          <div className="text-red-400 text-xs text-center mt-2">{error}</div>
-        )}
-        {success && (
-          <div className="text-green-400 text-xs text-center mt-2">{success}</div>
-        )}
+        {error && <div className="text-red-400 text-xs text-center mt-2">{error}</div>}
+        {success && <div className="text-green-400 text-xs text-center mt-2">{success}</div>}
       </motion.div>
     </div>
   );
