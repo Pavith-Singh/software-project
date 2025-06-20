@@ -136,6 +136,8 @@ const Account: React.FC = () => {
       const storageRef = ref(storage, `profile_pictures/${user.uid}`);
       const uploadTask = await uploadString(storageRef, photoPreview, 'data_url');
       const downloadURL = await getDownloadURL(uploadTask.ref);
+      console.log('user.photoURL', user?.photoURL);
+      console.log('providerData', user?.providerData);
       await updateProfile(user, { photoURL: downloadURL });
       setSuccess('Profile picture updated!');
       setActiveSection('');
@@ -266,7 +268,7 @@ const Account: React.FC = () => {
               exit={{ opacity: 0, y: -10 }}
               className="space-y-4 text-white text-sm w-full flex flex-col items-center"
             >
-              <img src={user.photoURL || 'https://via.placeholder.com/100'} alt="Profile" className="w-24 h-24 rounded-full" />
+              <img src={user?.photoURL || user?.providerData?.[0]?.photoURL || 'https://via.placeholder.com/100'} alt="Profile" className="w-24 h-24 rounded-full" />
               <div className="text-lg font-semibold">{user.displayName || 'No username set'}</div>
               <div>Email: <span className="font-mono">{user.email}</span></div>
               <button type="button" onClick={() => setActiveSection('')} className="cursor-pointer text-gray-400 underline">
@@ -375,5 +377,6 @@ const Account: React.FC = () => {
     </div>
   );
 };
+
 
 export default Account;

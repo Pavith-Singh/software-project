@@ -8,7 +8,6 @@ import Classes from "./Dashboard/classes";
 import Notes from "./Dashboard/notes";
 import Account from "./Dashboard/account";
 import Social from "./Dashboard/social";
-import Calculator from "./Dashboard/calculator";
 import GraphingCalculator from "./Dashboard/graphing_calculator";
 import Activities from "./Dashboard/activities";
 import AIChat from "./Dashboard/ai_chat";
@@ -66,14 +65,6 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Social />
-            </ProtectedRoute>
-          }
-        />
-        <Route 
-          path="/home/calculator" 
-          element={
-            <ProtectedRoute>
-              <Calculator />
             </ProtectedRoute>
           }
         />
