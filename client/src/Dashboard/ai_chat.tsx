@@ -21,8 +21,7 @@ type Message = { sender: 'user' | 'ai'; text: string };
 type ChatMessage = { role: 'user' | 'assistant'; content: string };
 type ChatMeta = { id: string; title: string };
 
-const OPENAI_API_KEY =
-  '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';
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
 async function fetchAIReply(history: ChatMessage[]): Promise<string> {
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
