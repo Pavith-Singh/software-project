@@ -13,12 +13,9 @@ import { RxActivityLog } from 'react-icons/rx';
 import { FaPen } from 'react-icons/fa';
 import Calculator from './calculator';
 
-// Util: get best possible photoURL from user object
 function getProfilePhoto(user: User | null): string | null {
     if (!user) return null;
-    // Try the main user.photoURL first
     if (user.photoURL) return user.photoURL;
-    // Try all providerData for a non-null photoURL (Google etc)
     if (user.providerData) {
         for (const p of user.providerData) {
             if (p.photoURL) return p.photoURL;
@@ -27,7 +24,7 @@ function getProfilePhoto(user: User | null): string | null {
     return null;
 }
 
-// Util: get initials from displayName or email
+
 function getInitials(user: User | null): string | null {
     if (!user) return null;
     if (user.displayName) {
@@ -72,22 +69,23 @@ const Sidebar: React.FC = () => {
         return location.pathname === target;
     };
 
-    // This will *always* give you the best profile photo, or null
     const avatarUrl = getProfilePhoto(user);
 
-    // Get initials for fallback
     const initials = getInitials(user);
 
     return (
         <>
-            <div className="fixed z-20 top-0 left-0 h-screen w-16 flex flex-col bg-gray-900 text-white shadow-lg">
+            <div className="fixed z-50 top-0 left-0 h-screen w-16 flex flex-col bg-gray-900 text-white shadow-lg">
                 <SidebarIcon onClick={() => go('')} icon={<FaEarthAmericas size={28} />} text="Explore Student World" active={isActive('')} />
+                <SidebarDivider/>
                 <SidebarIcon onClick={() => go('classes')} icon={<SiGoogleclassroom size={28} />} text="Classes" active={isActive('classes')} />
                 <SidebarIcon onClick={() => go('activities')} icon={<RxActivityLog size={28} />} text="Activities" active={isActive('activities')} />
                 <SidebarIcon onClick={() => go('social')} icon={<FaUserFriends size={28} />} text="Social" active={isActive('social')} />
+                <SidebarDivider/>
                 <SidebarIcon onClick={() => go('notes')} icon={<FaPen size={28} />} text="Notes" active={isActive('notes')} />
                 <SidebarIcon onClick={() => go('messages')} icon={<FiMessageCircle size={28} />} text="Messages" active={isActive('messages')} />
                 <SidebarIcon onClick={() => setShowCalc(p => !p)} icon={<SlCalculator size={28} />} text="Calculator" active={showCalc} />
+                <SidebarDivider/>
                 <SidebarIcon onClick={() => go('graph')} icon={<GoGraph size={28} />} text="Graphing Calculator" active={isActive('graph')} />
                 <SidebarIcon onClick={() => go('ai')} icon={<GiArtificialIntelligence size={28} />} text="NSWEduChat 2.0" active={isActive('ai')} />
                 <SidebarIcon onClick={() => go('ide')} icon={<FaLaptopCode size={28} />} text="IDE" active={isActive('ide')} />
@@ -131,15 +129,19 @@ const SidebarIcon: React.FC<SidebarIconProps> = ({ onClick, icon, text = 'toolti
         onClick={onClick}
         className={`relative flex items-center justify-center h-12 w-12 mt-2 mb-2 mx-auto shadow-lg cursor-pointer rounded-3xl hover:rounded-xl transition-all group ${
             active
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-800 text-blue-500 hover:bg-blue-600 hover:text-white'
+                ? 'bg-red-600 text-white'
+                : 'bg-gray-800 text-red-500 hover:bg-red-600 hover:text-white'
         }`}
     >
         {icon}
-        <span className="absolute w-auto p-2 m-2 min-w-max left-14 rounded-md shadow-md text-white bg-gray-900 text-xs font-bold transition-all duration-100 scale-0 origin-left group-hover:scale-100">
+        <span className="pointer-events-none absolute w-auto p-2 m-2 min-w-max left-14 rounded-md shadow-md text-white bg-gray-900 text-xs font-bold transition-all duration-100 scale-0 origin-left group-hover:scale-100">
             {text}
         </span>
     </div>
+);
+
+const SidebarDivider = () => (
+  <div className="h-0.5 w-10 bg-gray-700 mx-auto my-2 rounded-full" />
 );
 
 export default Sidebar;

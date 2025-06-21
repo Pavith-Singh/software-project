@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Fuse from 'fuse.js';
 
-const suggestions = [
+export const suggestions = [
     //field done with chatgpt
   "English Advanced – Year 11",
   "English Standard – Year 11",
@@ -76,7 +76,7 @@ const suggestions = [
   "Visual Design Life Skills – Year 12",
   "Design and Technology – Year 11",
   "Engineering Studies – Year 11",
-  "Enterprise – Year 11",
+  "Enterprise Computing – Year 11",
   "Software Engineering – Year 11",
   "Textiles and Design – Year 11",
   "Industrial Technology – Year 11",

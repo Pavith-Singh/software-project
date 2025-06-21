@@ -85,10 +85,10 @@ const Calculator: React.FC<CalculatorProps> = ({ onClose }) => {
       <div
         ref={dragRef}
         onMouseDown={handleMouseDown}
-        className="cursor-move flex items-center justify-between bg-gray-100 rounded-t-xl px-4 py-2 select-none"
+        className="cursor-move flex items-center justify-between bg-gray-900 rounded-t-xl px-4 py-2 select-none"
         style={{ userSelect: 'none' }}
       >
-        <span className="font-semibold text-gray-600">Scientific Calculator</span>
+        <span className="font-semibold text-white">Scientific Calculator</span>
         <button
           className="text-lg cursor-pointer text-blue-500 hover:text-red-500"
           onClick={onClose}
@@ -97,7 +97,7 @@ const Calculator: React.FC<CalculatorProps> = ({ onClose }) => {
           ×
         </button>
       </div>
-      <div className="relative bg-white rounded-b-xl shadow-2xl p-2 w-full h-[372px] flex flex-col border border-gray-200">
+      <div className="relative bg-gray-900 rounded-b-xl shadow-2xl p-2 w-full h-[372px] flex flex-col border border-gray-200">
         <div ref={calculatorRef} className="flex-1 w-full h-full" />
       </div>
     </div>

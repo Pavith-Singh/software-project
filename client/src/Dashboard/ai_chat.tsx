@@ -18,7 +18,7 @@ import { AiOutlinePaperClip, AiOutlinePlus } from 'react-icons/ai';
 import { useNavigate } from 'react-router-dom';
 
 type Message = { sender: 'user' | 'ai'; text: string };
-type ChatMessage = { role: 'user' | 'assistant'; content: string };
+type ChatMessage = { role: 'user' | 'assistant' | 'system'; content: string };
 type ChatMeta = { id: string; title: string };
 
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
@@ -31,11 +31,10 @@ async function fetchAIReply(history: ChatMessage[]): Promise<string> {
       Authorization: `Bearer ${OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: 'gpt-4o',
+      model: 'o3-mini',
       messages: history,               
     }),
   });
-
   if (!response.ok) {
     throw new Error(await response.text());
   }
@@ -132,6 +131,7 @@ function AIChat() {
     setMessages(next);
     persist(next, text);
     const history: ChatMessage[] = [
+      { role: 'system', content: 'You are a helpful educational assistant called NSWEduChat. You help students learn by explaining clearly and adapting to their level of understanding. Be encouraging and friendly. Do not use special characters. Help other students, but do not baby them around, just help them learn without doing everything for them.' },
       ...next.map((m): ChatMessage => ({
         role: m.sender === 'user' ? 'user' : 'assistant',
         content: m.text,
@@ -237,12 +237,12 @@ function AIChat() {
   ];
   // UI designed by AI
   return (
-    <div className="flex h-screen bg-[#f7f8fa]">
+    <div className="flex h-screen bg-gray-900">
       <Sidebar />
       <div className="flex flex-1 justify-center items-center">
         <div className="w-full max-w-5xl mx-auto px-4">
           <div
-            className="bg-white rounded-2xl px-12 py-10 flex flex-col"
+            className="bg-black text-white rounded-2xl px-12 py-10 flex flex-col"
             style={{ minHeight: 540 }}
           >
             <div className="flex items-center gap-4 mb-6">
@@ -283,10 +283,10 @@ function AIChat() {
               {messages.length === 0 ? (
                 <>
                   <div className="mb-12">
-                    <div className="font-semibold text-[19px] mb-4 text-[#222]">
+                    <div className="font-semibold text-[19px] mb-4 text-white">
                       A few tips for a great experience:
                     </div>
-                    <ol className="list-decimal list-inside space-y-2 text-[16px] text-[#222]">
+                    <ol className="list-decimal list-inside space-y-2 text-[16px] text-white">
                       <li>
                         <span className="font-semibold">
                           Converse naturally:
@@ -321,7 +321,7 @@ function AIChat() {
                         a learning experience for both users and developers.
                       </li>
                     </ol>
-                    <div className="mt-6 text-[15px] text-[#545454]">
+                    <div className="mt-6 text-[15px] text-gray-400">
                       If you don’t know where to start, try picking a suggestion
                       from the buttons below.
                     </div>
@@ -368,12 +368,12 @@ function AIChat() {
                           src={userPhoto || 'https://via.placeholder.com/40'}
                           className="w-8 h-8 rounded-full"
                         />
-                        <div className="max-w-[80%] px-4 py-2 rounded-lg bg-blue-100 text-right">
+                        <div className="max-w-[80%] px-4 py-2 rounded-lg bg-orange-100 text-gray-700 text-right">
                           {m.text}
                         </div>
                       </div>
                     ) : (
-                      <div key={i} className="max-w-[80%] px-4 py-2 rounded-lg bg-gray-100 self-start">
+                      <div key={i} className="max-w-[80%] px-4 py-2 rounded-lg bg-gray-700 text-white self-start">
                         {m.text}
                       </div>
                     )
@@ -400,7 +400,7 @@ function AIChat() {
             )}
 
             <form onSubmit={handleSubmit} className="mt-auto">
-              <div className="flex items-center w-full border border-gray-300 rounded-lg bg-[#f7f8fa] px-4 py-2">
+              <div className="flex items-center w-full border border-gray-900 rounded-lg bg-black text-white px-4 py-2">
                 <button
                   type="button"
                   onClick={() => fileRef.current?.click()}
