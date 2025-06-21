@@ -2,12 +2,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Sidebar from '../components/Nav/Sidebar';
 import { Editor } from '@monaco-editor/react';
-import { MdFullscreen, MdFullscreenExit, MdDownload, MdPlayArrow } from 'react-icons/md';
+import { MdFullscreen, MdFullscreenExit, MdDownload, MdPlayArrow, MdLightbulb } from 'react-icons/md';
 
 
 const JUDGE0_URL = import.meta.env.VITE_JUDGE0_URL || '';
 const JUDGE0_RAPIDAPI_HOST = import.meta.env.VITE_JUDGE0_RAPIDAPI_HOST || '';
 const JUDGE0_RAPIDAPI_KEY = import.meta.env.VITE_JUDGE0_RAPIDAPI_KEY || '';
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
 const languageOptions = [
   { label: 'TypeScript', value: 'typescript' },
@@ -162,6 +163,45 @@ function IDE() {
   };
   }, [fullscreen]);
 
+  const suggestCode = async () => {
+    if (!OPENAI_API_KEY) {
+      setOutput('Missing OpenAI API key');
+      return;
+    }
+
+    setOutput('Thinking...');
+    try {
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are an expert coding assistant who can work out issues in existing the users program. Your name is CodeRed and you will always start your response off with CodeRed: {response}',
+            },
+            {
+              role: 'user',
+              content: `Here is my code:\n\n${code}\n\nWhat should I do next?`,
+            },
+          ],
+          temperature: 0.3,
+          max_tokens: 500,
+        }),
+      });
+
+      const data = await res.json();
+      const suggestion = data.choices?.[0]?.message?.content;
+      setOutput(suggestion || 'No suggestions received.');
+    } catch (err: any) {
+      setOutput(`AI Error: ${err.message}`);
+    }
+  };
+
   return (
     <div ref={containerRef} className="flex w-screen h-screen bg-gray-900 text-gray-100">
       {!isFullscreen && <Sidebar />}
@@ -178,6 +218,9 @@ function IDE() {
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
+            <button onClick={suggestCode} className="cursor-pointer p-2 rounded opacity-75 bg-yellow-300 text-black hover:bg-yellow-100 hover:opacity-60">
+              <MdLightbulb size={24} />
+            </button>
             <button onClick={runCode} className="cursor-pointer p-2 rounded opacity-75 bg-white text-black hover:bg-gray-200 hover:opacity-60">
               <MdPlayArrow size={24} />
             </button>

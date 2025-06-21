@@ -178,6 +178,7 @@ export const suggestions = [
   "IB: Theatre SL",
   "IB: Theory of Knowledge",
   "IB: Extended Essay",
+  "Miscellaneous"
 ]
 
 const Nav: React.FC<{}> = () => {

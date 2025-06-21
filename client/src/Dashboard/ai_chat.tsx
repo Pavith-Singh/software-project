@@ -31,7 +31,7 @@ async function fetchAIReply(history: ChatMessage[]): Promise<string> {
       Authorization: `Bearer ${OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: 'o3-mini',
+      model: 'gpt-4o',
       messages: history,               
     }),
   });

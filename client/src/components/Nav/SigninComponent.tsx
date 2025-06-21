@@ -3,11 +3,15 @@ import { AnimatePresence, motion } from 'framer-motion';
 import googleLogo from '../../assets/google.png';
 import visible from '../../assets/eye.png';
 import invisible from '../../assets/eye_closed.png';
-import { doSignInWithGoogle, doSignInWithEmailAndPassword, doCreateUserWithEmailAndPassword } from '../../firebase/auth';
+import {
+  doSignInWithGoogle,
+  doSignInWithEmailAndPassword,
+  doCreateUserWithEmailAndPassword
+} from '../../firebase/auth';
 import { updateProfile } from 'firebase/auth';
-
-
 import { useNavigate } from 'react-router-dom';
+
+export const password_validation = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
 
 const SigninComponent = () => {
   const [Signup, setSignup] = useState(false);
@@ -28,12 +32,21 @@ const SigninComponent = () => {
     setLoading(true);
     setError(null);
     setSuccess(null);
+
+    if (Signup && !password_validation.test(password)) {
+      setLoading(false);
+      setError(
+        'Password must be at least 8 characters long and include a letter, number, and special character.'
+      );
+      return;
+    }
+
     try {
       if (Signup) {
         const userCredential = await doCreateUserWithEmailAndPassword(email, password);
         if (userCredential) {
-          await updateProfile(userCredential.user, {displayName: fullName});
-          await userCredential.user.reload(); 
+          await updateProfile(userCredential.user, { displayName: fullName });
+          await userCredential.user.reload();
         }
         setSuccess('Successfully signed up! Welcome to Student World!');
         navigate('/home');
@@ -43,9 +56,10 @@ const SigninComponent = () => {
         navigate('/home');
       }
     } catch (err: any) {
-      setError(err.message || 'Authentication failed 😣');
+      setError(err.message || 'Authentication failed');
       console.error('Authentication error:', err);
     }
+
     setLoading(false);
   };
 

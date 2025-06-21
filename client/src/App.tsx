@@ -12,6 +12,7 @@ import GraphingCalculator from "./Dashboard/graphing_calculator";
 import Activities from "./Dashboard/activities";
 import AIChat from "./Dashboard/ai_chat";
 import IDE from "./Dashboard/ide";
+import ClassRoom from "./Dashboard/ClassRoom";
 
 import ProtectedRoute from "./ProtectedRoute"
 import { getAuth } from "firebase/auth";
@@ -97,6 +98,14 @@ const App = () => {
         element={
           <ProtectedRoute>
             <IDE />
+          </ProtectedRoute>
+        }
+        />
+        <Route
+        path = "/home/classroom/:id"
+        element={
+          <ProtectedRoute>
+            <ClassRoom />
           </ProtectedRoute>
         }
         />

@@ -18,6 +18,7 @@ import { getStorage, ref, uploadString, getDownloadURL } from 'firebase/storage'
 import { app } from '../firebase/firebase';
 
 const storage = getStorage(app);
+const password_validation = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
 
 const Account: React.FC = () => {
   const auth = getAuth();
@@ -101,6 +102,13 @@ const Account: React.FC = () => {
     setLoading(true);
     setError(null);
     setSuccess(null);
+
+    if (!password_validation.test(newPassword)) {
+      setError('Password must be at least 8 characters long and include a letter, number, and special character.');
+      setLoading(false);
+      return;
+    }
+
     try {
       await reauth(currentPassPwd);
       if (!user) throw new Error();
