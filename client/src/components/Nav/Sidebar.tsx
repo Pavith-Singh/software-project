@@ -13,7 +13,7 @@ import { RxActivityLog } from 'react-icons/rx';
 import { FaPen } from 'react-icons/fa';
 import Calculator from './calculator';
 
-function getProfilePhoto(user: User | null): string | null {
+export function getProfilePhoto(user: User | null): string | null {
     if (!user) return null;
     if (user.photoURL) return user.photoURL;
     if (user.providerData) {
@@ -25,7 +25,7 @@ function getProfilePhoto(user: User | null): string | null {
 }
 
 
-function getInitials(user: User | null): string | null {
+export function getInitials(user: User | null): string | null {
     if (!user) return null;
     if (user.displayName) {
         const parts = user.displayName.trim().split(/\s+/).filter(Boolean);
