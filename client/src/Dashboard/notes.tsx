@@ -1,4 +1,5 @@
 import React, { useState, Fragment, ChangeEvent, useEffect } from 'react'
+import { FaSpinner } from 'react-icons/fa'
 import Sidebar from '../components/Nav/Sidebar'
 import { Combobox, Listbox, Transition } from '@headlessui/react'
 import { suggestions } from '../components/Nav/Nav'
@@ -122,8 +123,10 @@ const Notes: React.FC = () => {
     type: '',
     year: '',
     keywordTags: '',
+    fileType: 'pdf',
     file: null as File | null,
   })
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const q = query(collection(db, 'resources'), orderBy('createdAt', 'desc'))
@@ -154,6 +157,7 @@ const Notes: React.FC = () => {
   )
 
   const handleAdd = async () => {
+    setIsLoading(true)
     if (
       newResource.title &&
       newResource.subject &&
@@ -171,14 +175,16 @@ const Notes: React.FC = () => {
         year: newResource.year,
         keywordTags: newResource.keywordTags.split(',').map(t => t.trim()),
         url,
-        format: 'pdf',
+        format: newResource.fileType === 'mp4' ? 'video' : 'pdf',
         createdAt: serverTimestamp(),
       })
-      setNewResource({ title: '', subject: '', type: '', year: '', keywordTags: '', file: null })
+      setNewResource({ title: '', subject: '', type: '', year: '', keywordTags: '', fileType: 'pdf', file: null })
       setPreviewUrl('')
       setShowAddForm(false)
+      setIsLoading(false)
     } else {
       alert('Please fill all fields and upload a PDF.')
+      setIsLoading(false)
     }
   }
 
@@ -274,11 +280,22 @@ const Notes: React.FC = () => {
                 onChange={e => setNewResource({ ...newResource, keywordTags: e.target.value })}
                 className="px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded"
               />
+              <label className="flex items-center gap-2 mb-2">
+                <span className="text-white">Select File Type:</span>
+                <select
+                  value={newResource.fileType}
+                  onChange={e => setNewResource({ ...newResource, fileType: e.target.value })}
+                  className="px-2 py-1 bg-gray-700 border border-gray-600 text-white rounded"
+                >
+                  <option value="pdf">PDF</option>
+                  <option value="mp4">MP4</option>
+                </select>
+              </label>
               <label className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded cursor-pointer text-center">
-                Choose PDF
+                Choose File
                 <input
                   type="file"
-                  accept=".pdf"
+                  accept={newResource.fileType === 'pdf' ? '.pdf' : '.mp4'}
                   onChange={e => {
                     const file = e.target.files?.[0] ?? null
                     setNewResource({ ...newResource, file })
@@ -294,8 +311,16 @@ const Notes: React.FC = () => {
                 <button
                   onClick={handleAdd}
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded cursor-pointer"
+                  disabled={isLoading}
                 >
-                  Add
+                  {isLoading ? (
+                    <>
+                      <FaSpinner className="animate-spin inline-block mr-2" />
+                      Adding...
+                    </>
+                  ) : (
+                    'Add'
+                  )}
                 </button>
                 <button
                   onClick={() => {
