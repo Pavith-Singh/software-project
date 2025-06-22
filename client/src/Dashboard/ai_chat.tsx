@@ -23,25 +23,17 @@ type ChatMeta = { id: string; title: string };
 
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
-async function fetchAIReply(history: ChatMessage[]): Promise<string> {
+async function fetchAIReply(history: ChatMessage[]) {
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${OPENAI_API_KEY}`,
     },
-    body: JSON.stringify({
-      model: 'gpt-4o',
-      messages: history,               
-    }),
+    body: JSON.stringify({ model: 'gpt-4o', messages: history }),
   });
-  if (!response.ok) {
-    throw new Error(await response.text());
-  }
-
-  const data: { choices: { message: { content: string } }[] } =
-    await response.json();
-
+  if (!response.ok) throw new Error(await response.text());
+  const data: { choices: { message: { content: string } }[] } = await response.json();
   return data.choices[0].message.content;
 }
 
@@ -67,25 +59,18 @@ function AIChat() {
       createdAt: serverTimestamp(),
       lastUpdated: serverTimestamp(),
     });
-    setChats(prev => {
-      const exists = prev.find(c => c.id === ref.id);
-      if (exists) return prev;
-      return [{ id: ref.id, title: 'New chat' }, ...prev];
-    });
+    setChats(prev => [{ id: ref.id, title: 'New chat' }, ...prev]);
     setChatId(ref.id);
     setMessages([]);
   };
 
   useEffect(() => {
-    const unsubAuth = onAuthStateChanged(auth, (u) => {
+    const unsubAuth = onAuthStateChanged(auth, u => {
       if (!u) return;
       setUserPhoto(u.photoURL || null);
-      const q = query(
-        collection(db, 'users', u.uid, 'chats'),
-        orderBy('lastUpdated', 'desc')
-      );
-      const unsubChats = onSnapshot(q, (snap) => {
-        const list: ChatMeta[] = snap.docs.map((d) => ({
+      const q = query(collection(db, 'users', u.uid, 'chats'), orderBy('lastUpdated', 'desc'));
+      const unsubChats = onSnapshot(q, snap => {
+        const list: ChatMeta[] = snap.docs.map(d => ({
           id: d.id,
           title: (d.data().title as string) || 'New chat',
         }));
@@ -101,9 +86,8 @@ function AIChat() {
     const u = auth.currentUser;
     if (!u) return;
     const d = await getDoc(doc(db, 'users', u.uid, 'chats', id));
-    const data = d.data();
     setChatId(id);
-    setMessages((data?.messages as Message[]) || []);
+    setMessages((d.data()?.messages as Message[]) || []);
   };
 
   const persist = async (newMsgs: Message[], titleSeed: string) => {
@@ -131,11 +115,18 @@ function AIChat() {
     setMessages(next);
     persist(next, text);
     const history: ChatMessage[] = [
-      { role: 'system', content: 'You are a helpful educational assistant called NSWEduChat. You help students learn by explaining clearly and adapting to their level of understanding. Be encouraging and friendly. Do not use special characters. Help other students, but do not baby them around, just help them learn without doing everything for them.' },
-      ...next.map((m): ChatMessage => ({
-        role: m.sender === 'user' ? 'user' : 'assistant',
-        content: m.text,
-      })),
+      {
+        role: 'system',
+        content:
+          'You are a helpful educational assistant called NSWEduChat. You help students learn by explaining clearly and adapting to their level of understanding. Be encouraging and friendly. Do not use special characters. Help other students, but do not baby them around, just help them learn without doing everything for them.',
+      } as ChatMessage,
+      ...next.map(
+        m =>
+          ({
+            role: m.sender === 'user' ? 'user' : 'assistant',
+            content: m.text,
+          } as ChatMessage)
+      ),
     ];
     try {
       const aiText = await fetchAIReply(history);
@@ -164,18 +155,12 @@ function AIChat() {
     if (!file) return;
     const u = auth.currentUser;
     if (!u || !chatId) return;
-
     setMessages(prev => [
       ...prev,
       { sender: 'user', text: `Uploading ${file.name}… 0 %` } as Message,
     ]);
-
-    const upRef = sRef(
-      storage,
-      `uploads/${u.uid}/${chatId}/${Date.now()}_${file.name}`
-    );
+    const upRef = sRef(storage, `uploads/${u.uid}/${chatId}/${Date.now()}_${file.name}`);
     const task = uploadBytesResumable(upRef, file);
-
     task.on(
       'state_changed',
       snap => {
@@ -200,8 +185,7 @@ function AIChat() {
           } as Message;
           return clone;
         });
-
-        sendMessage(`Here is the file I uploaded: ${file.name}\n${url}`);
+        sendMessage(`${file.name}\n${url}`);
       }
     );
   };
@@ -214,6 +198,30 @@ function AIChat() {
     ta.style.height = `${Math.min(ta.scrollHeight, maxHeight)}px`;
     ta.style.overflowY = ta.scrollHeight > maxHeight ? 'auto' : 'hidden';
   }, [input]);
+
+  const renderContent = (m: Message) => {
+    const parts = m.text.split('\n');
+    if (parts.length === 2 && parts[1].startsWith('http')) {
+      const [name, url] = parts as [string, string];
+      if (/\.pdf$/i.test(name)) {
+        return (
+          <>
+            <span className="break-words">{name}</span>
+            <iframe src={url} className="w-full h-64 mt-2 rounded" title="pdf" />
+          </>
+        );
+      }
+      if (/\.mp4$/i.test(name)) {
+        return (
+          <>
+            <span className="break-words">{name}</span>
+            <video controls src={url} className="w-full h-48 mt-2 rounded" />
+          </>
+        );
+      }
+    }
+    return <span className="whitespace-pre-wrap break-words">{m.text}</span>;
+  };
 
   const quickActions = [
     'Rephrase',
@@ -235,114 +243,53 @@ function AIChat() {
     'Translate to Korean',
     'Translate to Punjabi',
   ];
-  // UI designed by AI
+
   return (
     <div className="flex h-screen bg-gray-900">
       <Sidebar />
       <div className="flex flex-1 justify-center items-center">
         <div className="w-full max-w-5xl mx-auto px-4">
-          <div
-            className="bg-black text-white rounded-2xl px-12 py-10 flex flex-col"
-            style={{ minHeight: 540 }}
-          >
+          <div className="bg-black text-white rounded-2xl px-12 py-10 flex flex-col" style={{ minHeight: 540 }}>
             <div className="flex items-center gap-4 mb-6">
-              <img
-                src={userPhoto || 'https://via.placeholder.com/40'}
-                className="w-10 h-10 rounded-full"
-              />
-
-              <select
-                value={chatId || ''}
-                onChange={e => loadChat(e.target.value)}
-                className="border px-2 py-1 rounded cursor-pointer"
-              >
+              <img src={userPhoto || 'https://via.placeholder.com/40'} className="w-10 h-10 rounded-full" />
+              <select value={chatId || ''} onChange={e => loadChat(e.target.value)} className="border px-2 py-1 rounded cursor-pointer">
                 {chats.map(c => (
                   <option key={c.id} value={c.id}>
                     {c.title}
                   </option>
                 ))}
               </select>
-
-              <button
-                onClick={createChat}
-                className="bg-[#1769e0] hover:bg-[#1357b3] text-white p-1 rounded"
-              >
-                <AiOutlinePlus size={18} className='cursor-pointer'/>
+              <button onClick={createChat} className="bg-[#1769e0] hover:bg-[#1357b3] text-white p-1 rounded">
+                <AiOutlinePlus size={18} className="cursor-pointer" />
               </button>
-
-              <input
-                ref={fileRef}
-                type="file"
-                accept=".png,.pdf,.docx"
-                className="hidden"
-                onChange={handleFile}
-              />
+              <input ref={fileRef} type="file" accept=".pdf,.mp4" className="hidden" onChange={handleFile} />
             </div>
-
             <div className="flex-1 overflow-y-auto overflow-x-hidden mb-6">
               {messages.length === 0 ? (
                 <>
                   <div className="mb-12">
-                    <div className="font-semibold text-[19px] mb-4 text-white">
-                      A few tips for a great experience:
-                    </div>
+                    <div className="font-semibold text-[19px] mb-4 text-white">A few tips for a great experience:</div>
                     <ol className="list-decimal list-inside space-y-2 text-[16px] text-white">
                       <li>
-                        <span className="font-semibold">
-                          Converse naturally:
-                        </span>{' '}
-                        Unlike traditional search engines where you might type
-                        in keywords, NSWEduChat thrives on full sentences and
-                        clear questions. Think of it as having a conversation
-                        with a knowledgeable friend. The clearer and more
-                        specific your questions, the better the AI can assist
-                        you.
+                        <span className="font-semibold">Converse naturally:</span> NSWEduChat thrives on full sentences and clear questions.
                       </li>
                       <li>
-                        <span className="font-semibold">Avoid ambiguity:</span>{' '}
-                        If your question is too broad or vague, the AI might
-                        provide a general answer. If you're looking for
-                        something specific, be sure to specify it in your query.
+                        <span className="font-semibold">Avoid ambiguity:</span> Provide details for better responses.
                       </li>
                       <li>
-                        <span className="font-semibold">
-                          Explore and experiment:
-                        </span>{' '}
-                        Feel free to ask follow-up questions, dive deep into
-                        topics, or even test the AI's creative capabilities.
-                        Whether you're looking for information, advice, or just
-                        a fun interaction, NSWEduChat is here to help.
+                        <span className="font-semibold">Explore and experiment:</span> Ask follow-up questions or dive deep into topics.
                       </li>
                       <li>
-                        <span className="font-semibold">Feedback is gold:</span>{' '}
-                        If you ever feel the response isn't quite right, or if
-                        you're curious about how the AI arrived at a particular
-                        answer, don't hesitate to ask or provide feedback. It's
-                        a learning experience for both users and developers.
+                        <span className="font-semibold">Feedback is gold:</span> Provide feedback or ask how a response was generated.
                       </li>
                     </ol>
-                    <div className="mt-6 text-[15px] text-gray-400">
-                      If you don’t know where to start, try picking a suggestion
-                      from the buttons below.
-                    </div>
+                    <div className="mt-6 text-[15px] text-gray-400">If you don’t know where to start, try picking a suggestion from the buttons below.</div>
                   </div>
                   <div className="flex gap-3 mb-10">
                     {[
-                      {
-                        title: 'Help with a subject',
-                        body:
-                          'Hi. I need some help with a specific subject. What do you need to know to help me out?',
-                      },
-                      {
-                        title: 'Prepare an exam',
-                        body:
-                          'Hi. I need to prepare for an important exam. What information do you need from me to understand more about it so that you can help me.',
-                      },
-                      {
-                        title: 'Multimodal task',
-                        body:
-                          'Hi. I have to do a multimodal assessment task. Explain what it is.',
-                      },
+                      { title: 'Help with a subject', body: 'Hi. I need some help with a specific subject. What do you need to know to help me out?' },
+                      { title: 'Prepare an exam', body: 'Hi. I need to prepare for an important exam. What information do you need from me to understand more about it so that you can help me.' },
+                      { title: 'Multimodal task', body: 'Hi. I have to do a multimodal assessment task. Explain what it is.' },
                     ].map(({ title, body }) => (
                       <button
                         key={title}
@@ -352,9 +299,7 @@ function AIChat() {
                         style={{ minWidth: 0 }}
                       >
                         <div className="font-bold">{title}</div>
-                        <div className="text-[14px] font-normal leading-snug mt-1 whitespace-nowrap truncate">
-                          {body}
-                        </div>
+                        <div className="text-[14px] font-normal leading-snug mt-1 whitespace-nowrap truncate">{body}</div>
                       </button>
                     ))}
                   </div>
@@ -364,28 +309,20 @@ function AIChat() {
                   {messages.map((m, i) =>
                     m.sender === 'user' ? (
                       <div key={i} className="flex items-end justify-end space-x-2 self-end">
-                        <img
-                          src={userPhoto || 'https://via.placeholder.com/40'}
-                          className="w-8 h-8 rounded-full"
-                        />
-                        <div className="max-w-[80%] px-4 py-2 rounded-lg bg-orange-100 text-gray-700 text-right">
-                          {m.text}
-                        </div>
+                        <img src={userPhoto || 'https://via.placeholder.com/40'} className="w-8 h-8 rounded-full" />
+                        <div className="max-w-[80%] px-4 py-2 rounded-lg bg-orange-100 text-gray-700 text-right">{renderContent(m)}</div>
                       </div>
                     ) : (
-                      <div key={i} className="max-w-[80%] px-4 py-2 rounded-lg bg-gray-700 text-white self-start">
-                        {m.text}
-                      </div>
+                      <div key={i} className="max-w-[80%] px-4 py-2 rounded-lg bg-gray-700 text-white self-start">{renderContent(m)}</div>
                     )
                   )}
                 </div>
               )}
             </div>
-
             {messages.length > 0 && (
               <div className="mb-4 overflow-x-auto whitespace-nowrap scrollbar-thin">
                 <div className="flex gap-4">
-                  {quickActions.map((a) => (
+                  {quickActions.map(a => (
                     <button
                       key={a}
                       type="button"
@@ -398,33 +335,19 @@ function AIChat() {
                 </div>
               </div>
             )}
-
             <form onSubmit={handleSubmit} className="mt-auto">
               <div className="flex items-center w-full border border-gray-900 rounded-lg bg-black text-white px-4 py-2">
-                <button
-                  type="button"
-                  onClick={() => fileRef.current?.click()}
-                  className="mr-2"
-                >
-                  <AiOutlinePaperClip size={22} className='cursor-pointer' />
+                <button type="button" onClick={() => fileRef.current?.click()} className="mr-2">
+                  <AiOutlinePaperClip size={22} className="cursor-pointer" />
                 </button>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept=".png,.docx"
-                  className="hidden"
-                  onChange={handleFile}
-                />
+                <input ref={fileRef} type="file" accept=".pdf,.mp4" className="hidden" onChange={handleFile} />
                 <textarea
                   ref={textareaRef}
                   rows={1}
                   className="flex-1 bg-transparent border-none outline-none text-[16px] placeholder-gray-500 resize-none h-10"
-                  placeholder="Enter your prompt"
                   maxLength={MAX_LENGTH}
                   value={input}
-                  onChange={(e) =>
-                    setInput(e.target.value.slice(0, MAX_LENGTH))
-                  }
+                  onChange={e => setInput(e.target.value.slice(0, MAX_LENGTH))}
                 />
                 <button
                   type="submit"
@@ -436,14 +359,8 @@ function AIChat() {
               </div>
               <div className="flex justify-between items-center mt-2 text-xs text-gray-500">
                 <span>
-                  Responses may not be accurate. If your query is related to a
-                  policy or procedure, use those words in your query (
-                  <a
-                    href="https://www.education.nsw.gov.au/bin/doe-oauth/2.0?code=AAAAAAAAAAAAAAAAAAAAAA.0J-eGsav3Qgkogq2vZlOIFpzy0w.N36A12XAXJX_Nj8em0LzIFP61b9zxSrwah6ZO8Gnz09hcmx6PQcHVfEMt3wFujvMb_zHVzhR7V1PaTgsdMe4YGHu--bSxi6_A8qAm7M30RfrSFJKP1NBcXWqqzljjRizlN-1EuL96tjF0x3Zq0DFt9sekpYaUVaceD4rBY0FaAC4i4HjrnLfBXryHUnHsMfoeF5IZ-B1fJ002q-1NbhzdtMMOJRw-8ATMfre5BqQ0yfz3G1_5vocoXmCqTeL8OpsljDMwZ-chr5dwTQ2-ASfE2ftkTclRZxZ6_Iwq_ZlxLUy81_D0WhlB8Ag3mibzcntYLXdBV_aozZgBJhF-db6IQ&state=aHR0cHM6Ly9lZHVjYXRpb24ubnN3Lmdvdi5hdS9jb250ZW50L21haW4tZWR1Y2F0aW9uL2VuL2hvbWUvdGVjaG5vbG9neS9hcnRpZmljaWFsLWludGVsbGlnZW5jZS1pbi1lZHVjYXRpb24vYXJ0aWZpY2lhbC1pbnRlbGxpZ2VuY2UtaW4tZWR1Y2F0aW9uL2VuYWJsaW5nLWdlbmVyYXRpdmUtYWktb3Bwb3J0dW5pdGllcy13aGlsZS1tYW5hZ2luZy1yaXNrcy5odG1s&client-request-id=6d5b1c79-85b5-4abe-4518-0080090000f6"
-                    className="underline"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                  Responses may not be accurate. If your query is related to a policy or procedure, use appropriate terms (
+                  <a href="https://www.education.nsw.gov.au/" className="underline" target="_blank" rel="noopener noreferrer">
                     see guidelines
                   </a>
                   ).

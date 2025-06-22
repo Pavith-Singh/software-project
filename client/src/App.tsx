@@ -13,14 +13,25 @@ import Activities from "./Dashboard/activities";
 import AIChat from "./Dashboard/ai_chat";
 import IDE from "./Dashboard/ide";
 import ClassRoom from "./Dashboard/ClassRoom";
+import ChatRoom from "./Dashboard/ChatRoom";
+import { useState, useEffect } from "react";
 
 import ProtectedRoute from "./ProtectedRoute"
 import { getAuth } from "firebase/auth";
+import SplashScreen from "./SplashScreen";
 
 const auth = getAuth();
 console.log("Firebase auth reports:", auth.currentUser);
 
 const App = () => {
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setShowSplash(false), 3000);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  if (showSplash) return <SplashScreen onComplete={() => setShowSplash(false)} />;
   return (
     <Router>
       <Routes>
@@ -42,6 +53,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Messages />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/home/messages/:type/:id"
+          element={
+            <ProtectedRoute>
+              <ChatRoom />
             </ProtectedRoute>
           }
         />

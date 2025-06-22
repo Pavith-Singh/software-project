@@ -140,8 +140,8 @@ const SidebarIcon: React.FC<SidebarIconProps> = ({ onClick, icon, text = 'toolti
     </div>
 );
 
-const SidebarDivider = () => (
-  <div className="h-0.5 w-10 bg-gray-700 mx-auto my-2 rounded-full" />
+const SidebarDivider = () => ( 
+<div className="h-0.5 w-10 bg-gray-700 mx-auto my-2 rounded-full" />
 );
 
 export default Sidebar;

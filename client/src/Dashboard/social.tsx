@@ -130,10 +130,16 @@ function Social() {
     respondRequest(id, 'rejected');
   };
 
-  const removeFriend = (uid: string) => {
-    setFriends(prev => prev.filter(f => f !== uid));
-    setToast('Friend removed');
-    // Optionally: call backend to delete friendship
+  const removeFriend = async (uid: string) => {
+    if (!currentUid) return;
+    try {
+      await fetch(`${API_BASE}/friend/${currentUid}/${uid}`, { method: 'DELETE' });
+      setFriends(prev => prev.filter(f => f !== uid));
+      setToast('Friend removed');
+    } catch (err) {
+      console.error('Error removing friend:', err);
+      setToast('Could not remove friend');
+    }
   };
 
   const getInitials = (name?: string) =>
@@ -294,7 +300,7 @@ function Social() {
                   )}
                   <span className="font-medium text-sm">{resolveName(uid)}</span>
                   <FaTrash
-                    className="cursor-pointer text-red-500"
+                    className="ml-auto cursor-pointer text-red-500"
                     size={16}
                     onClick={() => removeFriend(uid)}
                   />

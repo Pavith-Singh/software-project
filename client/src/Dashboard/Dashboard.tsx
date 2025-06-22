@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import Sidebar from '../components/Nav/Sidebar';
 import { db } from '../firebase/firebase';
 import { collection, getDocs, query } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { FaUserPlus } from 'react-icons/fa';
+import { IoCopyOutline } from 'react-icons/io5';
 import Fuse from 'fuse.js';
 
 const API_BASE = 'http://localhost:9000';
@@ -28,6 +29,13 @@ interface UserProfile {
   photoURL?: string;
 }
 
+interface FriendRequest {
+  id: number;
+  requester_uid: string;
+  requested_uid: string;
+  status: 'pending' | 'accepted' | 'rejected';
+}
+
 const initials = (name?: string) =>
   name
     ? name
@@ -44,6 +52,8 @@ const Dashboard: React.FC = () => {
   const [classList, setClassList] = useState<Classroom[]>([]);
   const [people, setPeople] = useState<UserProfile[]>([]);
   const [copyMsg, setCopyMsg] = useState('');
+  const [friends, setFriends] = useState<string[]>([]);
+  const [pendingTargets, setPendingTargets] = useState<string[]>([]);
 
   useEffect(() => {
     if (!copyMsg) return;
@@ -66,6 +76,27 @@ const Dashboard: React.FC = () => {
   }, []);
 
   useEffect(() => onAuthStateChanged(getAuth(), u => setCurrentUid(u?.uid || null)), []);
+
+  const fetchFriends = useCallback((uid: string) => {
+    fetch(`${API_BASE}/friends/${uid}`)
+      .then(res => res.json())
+      .then(data => setFriends(data.friends as string[]))
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    if (!currentUid) return;
+    fetch(`${API_BASE}/friend-requests/${currentUid}`)
+      .then(res => res.json())
+      .then((data: { sent: FriendRequest[]; received: FriendRequest[] }) => {
+        const pending = [...data.sent, ...data.received].filter(r => r.status === 'pending');
+        setPendingTargets(pending.map(r =>
+          r.requester_uid === currentUid ? r.requested_uid : r.requester_uid
+        ));
+      })
+      .catch(console.error);
+    fetchFriends(currentUid);
+  }, [currentUid, fetchFriends]);
 
   const fuseClass = useMemo(
     () => new Fuse(classList, { keys: ['name', 'subject', 'code', 'teacherName'], threshold: 0.35 }),
@@ -105,7 +136,11 @@ const Dashboard: React.FC = () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ requester_uid: currentUid, requested_uid: uid })
-    }).then(() => setCopyMsg('Friend request sent!'));
+    })
+      .then(() => {
+        setCopyMsg('Friend request sent!');
+        setPendingTargets(prev => [...prev, uid]);
+      });
   };
 
   const studentsCount = (c: Classroom) => c.memberIds.filter(id => id !== c.teacherId).length;
@@ -163,9 +198,10 @@ const Dashboard: React.FC = () => {
                     </p>
                     {!isMember && !full ? (
                       <button
-                        className="w-full py-1 rounded bg-blue-600 hover:bg-blue-700 cursor-pointer text-sm"
+                        className="w-full py-1 rounded bg-blue-600 hover:bg-blue-700 cursor-pointer text-sm flex items-center justify-center"
                         onClick={() => copyClassCode(room.code)}
                       >
+                        <IoCopyOutline className="mr-2" size={16} />
                         Copy Code
                       </button>
                     ) : (
@@ -200,11 +236,17 @@ const Dashboard: React.FC = () => {
                       user.displayName ||
                       (user.email ? user.email.split('@')[0] : user.uid)}
                   </span>
-                  <FaUserPlus
-                    className="text-red-500 cursor-pointer ml-auto"
-                    size={18}
-                    onClick={() => sendFriend(user.uid)}
-                  />
+                  {!friends.includes(user.uid) && !pendingTargets.includes(user.uid) ? (
+                    <FaUserPlus
+                      className="text-red-500 cursor-pointer ml-auto"
+                      size={18}
+                      onClick={() => sendFriend(user.uid)}
+                    />
+                  ) : (
+                    <span className="ml-auto text-xs text-gray-400">
+                      {friends.includes(user.uid) ? 'Friend' : 'Pending'}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>

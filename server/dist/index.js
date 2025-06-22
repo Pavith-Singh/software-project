@@ -91,6 +91,25 @@ app.post('/friend-request', sendFriendRequest);
 app.get('/friend-requests/:uid', getFriendRequests);
 app.put('/friend-request/:id', updateFriendRequest);
 app.get('/friends/:uid', getFriends);
+app.delete('/friend/:uid1/:uid2', (req, res) => {
+    const { uid1, uid2 } = req.params;
+    try {
+        const stmt = database_1.default.prepare(`
+            DELETE FROM friend_requests
+            WHERE status = 'accepted'
+            AND (
+                (requester_uid = ? AND requested_uid = ?)
+            OR (requester_uid = ? AND requested_uid = ?)
+            )
+        `);
+        stmt.run(uid1, uid2, uid2, uid1);
+        res.json({ success: true });
+    }
+    catch (err) {
+        console.error('Error deleting friendship:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
 app.listen(port, () => {
     console.log(`now listening on port ${port}`);
 });
