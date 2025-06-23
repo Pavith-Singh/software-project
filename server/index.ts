@@ -7,9 +7,10 @@ const port = 9000;
 
 app.use(express.json());
 app.use(cors({
-    origin: 'http://software-project-pearl.vercel.app',
+    origin: 'https://software-project-pearl.vercel.app',
     methods: ['GET','POST','PUT','DELETE','OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
 }));
 
 console.log(`Server running on http://localhost:${port}`);

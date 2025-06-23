@@ -10,9 +10,10 @@ const app = (0, express_1.default)();
 const port = 9000;
 app.use(express_1.default.json());
 app.use((0, cors_1.default)({
-    origin: 'http://software-project-pearl.vercel.app',
+    origin: 'https://software-project-pearl.vercel.app',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
 }));
 console.log(`Server running on http://localhost:${port}`);
 const sendFriendRequest = (req, res, next) => {
