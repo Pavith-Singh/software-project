@@ -10,7 +10,7 @@ import Sidebar from '../components/Nav/Sidebar';
 import { db } from '../firebase/firebase';
 import { useNavigate } from 'react-router-dom';
 
-const API_BASE = 'http://localhost:9000';
+
 
 interface Classroom {
   id: string;
@@ -54,7 +54,7 @@ function Messages() {
   useEffect(() => onAuthStateChanged(getAuth(), u => setCurrentUser(u)), []);
 
   const fetchFriends = useCallback((uid: string) => {
-    fetch(`${API_BASE}/friends/${uid}`)
+    fetch(`${import.meta.env.VITE_API_URL}/friends/${uid}`)
       .then(res => res.json())
       .then(data => setFriends(data.friends as string[]))
       .catch(console.error);
