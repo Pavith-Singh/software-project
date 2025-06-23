@@ -7,7 +7,7 @@ const port = 9000;
 
 app.use(express.json());
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: 'http://software-project-pearl.vercel.app',
     methods: ['GET','POST','PUT','DELETE','OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
