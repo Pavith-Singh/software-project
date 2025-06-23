@@ -65,6 +65,8 @@ const Calculator: React.FC<CalculatorProps> = ({ onClose }) => {
       calculator = DesmosAPI.ScientificCalculator(calculatorRef.current, {
         keypad: true,
         showMenuBar: false,
+        settingsMenu: false,
+        invertedColors: true
       });
     }
     return () => {
