@@ -23,6 +23,7 @@ function copyRedirects(): any {
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), copyRedirects()],
+  base: process.env.VITE_BASE_PATH || '/',
   optimizeDeps: {
     include: ['@react-three/fiber', '@react-three/drei'],
   },
