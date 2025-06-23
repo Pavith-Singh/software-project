@@ -7,8 +7,6 @@ import { FaUserPlus } from 'react-icons/fa';
 import { IoCopyOutline } from 'react-icons/io5';
 import Fuse from 'fuse.js';
 
-const API_BASE = 'http://localhost:9000';
-
 interface Classroom {
   id: string;
   name: string;
@@ -78,7 +76,7 @@ const Dashboard: React.FC = () => {
   useEffect(() => onAuthStateChanged(getAuth(), u => setCurrentUid(u?.uid || null)), []);
 
   const fetchFriends = useCallback((uid: string) => {
-    fetch(`${API_BASE}/friends/${uid}`)
+    fetch(`${import.meta.env.VITE_API_URL}/friends/${uid}`)
       .then(res => res.json())
       .then(data => setFriends(data.friends as string[]))
       .catch(console.error);
@@ -86,7 +84,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (!currentUid) return;
-    fetch(`${API_BASE}/friend-requests/${currentUid}`)
+    fetch(`${import.meta.env.VITE_API_URL}/friend-requests/${currentUid}`)
       .then(res => res.json())
       .then((data: { sent: FriendRequest[]; received: FriendRequest[] }) => {
         const pending = [...data.sent, ...data.received].filter(r => r.status === 'pending');
@@ -132,7 +130,7 @@ const Dashboard: React.FC = () => {
 
   const sendFriend = (uid: string) => {
     if (!currentUid) return;
-    fetch(`${API_BASE}/friend-request`, {
+    fetch(`${import.meta.env.VITE_API_URL}/friend-request`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ requester_uid: currentUid, requested_uid: uid })
