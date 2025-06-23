@@ -13,6 +13,8 @@ doc,
 getDoc
 } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
+import { IoArrowBack } from 'react-icons/io5';
+import { useNavigate } from 'react-router-dom';
 
 import { IoSend } from 'react-icons/io5';
 import { ref as sRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
@@ -52,6 +54,7 @@ const bottomRef = useRef<HTMLDivElement>(null);
 const textareaRef = useRef<HTMLTextAreaElement>(null);
 const fileRef = useRef<HTMLInputElement>(null);
 const auth = getAuth();
+const navigate = useNavigate();
 const current = auth.currentUser;
 const [colRef, setColRef] = useState<ReturnType<typeof collection> | null>(null);
 
@@ -240,6 +243,13 @@ return (
 <div className="w-full max-w-5xl mx-auto px-4 flex flex-col items-center justify-center">
     <div className="bg-black text-white rounded-2xl px-10 py-8 flex flex-col w-full max-w-5xl h-180">
     <div className="flex items-center gap-3 mb-4">
+        <button
+        onClick={() => navigate('/home/messages')}
+        className="text-white hover:text-gray-300 transition cursor-pointer"
+        aria-label="Back to social"
+        >
+        <IoArrowBack size={22} />
+        </button>
         {roomAvatar ? (
         <img src={roomAvatar} className="w-10 h-10 rounded-full object-cover" />
         ) : (
